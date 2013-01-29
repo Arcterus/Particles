@@ -10,8 +10,7 @@ public class Wall
 
 	public Wall(double x, double y, int pixelWidth, int pixelHeight)
 	{
-		Image temp = createImage(pixelWidth, pixelHeight);
-    	this.image = temp;
+    		this.image = createImage(pixelWidth, pixelHeight);
 		this.x = x;
 		this.y = y;
 	}
@@ -19,9 +18,11 @@ public class Wall
 	protected BufferedImage createImage(int pixelWidth, int pixelHeight)
 	{
 		BufferedImage temp = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_ARGB);
-		for(int i = 0; i < temp.getWidth(); i++)
+		int width = temp.getWidth();
+		for(int i = 0; i < width; i++)
 		{
-			for(int j = 0; j < temp.getHeight(); j++)
+			int height = temp.getHeight();
+			for(int j = 0; j < height; j++)
 			{
 				temp.setRGB(i, j, Color.GRAY.getRGB());
 			}
