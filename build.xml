@@ -1,0 +1,105 @@
+<project name="Particles" default="app" basedir=".">
+   <description>
+      A game similar to the Sand Falling Game and the Powder Toy.
+   </description>
+
+   <property name="src" location="src"/>
+   <property name="build" location="build"/>
+   <property name="bin" location="bin"/>
+   <property name="resource" location="resource"/>
+
+   <condition property="isMac">
+      <os family="mac"/>
+   </condition>
+
+   <condition property="isWindows">
+      <os family="windows"/>
+   </condition>
+
+   <condition property="isUnix">
+      <and>
+         <os family="unix"/>
+         <not>
+            <os family="mac"/>
+         </not>
+      </and>
+   </condition>
+
+   <macrodef name="getPlistString">
+      <attribute name="key"/>
+      <attribute name="property"/>
+      <sequential>
+         <loadfile srcFile="resource/mac/Info.plist" property="@{property}">
+            <filterchain>
+               <!--<striplinebreaks/>-->
+               <linecontainsregexp casesensitive="false">
+                  <regexp pattern="&lt;key&gt;@{key}&lt;/key&gt;|&lt;string&gt;.*?&lt;/string&gt;"/>
+               </linecontainsregexp>
+               <striplinebreaks/>
+               <!--<replaceregex pattern="^((?:(?!&lt;key&gt;@{key}&lt;/key&gt;\s*?&lt;string&gt;.*?&lt;/string&gt;)))*$" replace="\1" flags="gsi"/>-->
+               <replaceregex pattern="&lt;key&gt;@{key}&lt;/key&gt;\s*?&lt;string&gt;(.*?)&lt;/string&gt;" replace="\1" flags="gi"/>
+               <!--<containsregex pattern="(?!&lt;key&gt;@{key}&lt;/key&gt;\s*&lt;string&gt;.*&lt;/string&gt;)" flags="gi"/>
+               <containsregex pattern="&lt;key&gt;@{key}&lt;/key&gt;\s*&lt;string&gt;(.*)&lt;/string&gt;" replace="\1" flags="gi"/>-->
+            </filterchain>
+         </loadfile>
+      </sequential>
+   </macrodef>
+
+   <target name="init">
+      <tstamp/>
+      <mkdir dir="${build}"/>
+   </target>
+
+   <target name="build" depends="init" description="compiles source code">
+      <javac srcdir="${src}" destdir="${build}"/>
+   </target>
+
+   <target name="bundle" depends="build"
+      description="build destributable jar file">
+      <jar jarfile="${bin}/Particles-${DSTAMP}.jar" basedir="${build}">
+         <manifest>
+            <attribute name="Main-Class" value="Main"/>
+         </manifest>
+      </jar>
+   </target>
+
+   <target name="app" depends="bundle,macApp,windowsApp,unixApp"
+      description="build platform specific executable">
+   </target>
+
+   <target name="macApp" if="isMac" description="build Mac app">
+      <mkdir dir="${bin}/Particles.app/Contents/MacOS"/>
+      <mkdir dir="${bin}/Particles.app/Contents/Resources/Java"/>
+      <getPlistString key="CFBundlePackageType" property="pkgtype"/>
+      <getPlistString key="CFBundleSignature" property="pkgsig"/>
+      <concat destfile="${bin}/Particles.app/Contents/PkgInfo">
+         <propertyresource name="pkgtype"/>
+         <propertyresource name="pkgsig"/>
+      </concat>
+      <copy file="${resource}/mac/Info.plist" todir="${bin}/Particles.app/Contents/"/>
+      <copy file="${resource}/mac/JavaApplicationStub" todir="${bin}/Particles.app/Contents/MacOS/"/>
+      <copy file="${resource}/mac/icon.icns" todir="${bin}/Particles.app/Contents/Resources/"/>
+      <copy file="${bin}/Particles-${DSTAMP}.jar" tofile="${bin}/Particles.app/Contents/Resources/Java/Particles.jar"/>
+   </target>
+
+   <target name="windowsApp" if="isWindows" description="build Windows app">
+
+   </target>
+
+   <target name="unixApp" if="isUnix" description="build non-Mac Unix app">
+
+   </target>
+
+   <target name="install" depends="app" description="install app to system">
+
+   </target>
+
+   <target name="uninstall" description="uninstall app from system">
+
+   </target>
+
+   <target name="clean" description="remove build files">
+      <delete dir="${bin}"/>
+      <delete dir="${build}"/>
+   </target>
+</project>

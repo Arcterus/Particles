@@ -114,7 +114,7 @@ public class SimpleBoard extends JPanel implements MouseMotionListener, ActionLi
         {
             Wall tep = walls.get(i);
             g2d.drawImage(tep.getImage(), (int) tep.getX(), (int) tep.getY(), this);
-            if (tep instanceof Emitter)
+            //if (tep instanceof Emitter)
             {
                 //Make particles in open areas
             }
